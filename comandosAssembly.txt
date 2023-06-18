@@ -1,0 +1,49 @@
+0000000000000000 <inicio>:
+   0:   55                      push   %rbp
+   1:   48 89 e5                mov    %rsp,%rbp
+   4:   48 83 ec 20             sub    $0x20,%rsp
+
+0000000000000000 <.text>:
+   0:   03 45 fc                add    -0x4(%rbp),%eax
+
+0000000000000000 <jmp>:
+   0:   e9 00 00 00 00          jmpq   0x5
+
+0000000000000000 <.text>:
+   0:   b8 01 00 00 00          mov    $0x1,%eax
+   5:   c9                      leaveq 
+   6:   c3                      retq 
+
+0000000000000000 <final>:
+   0:   c9                      leaveq 
+   1:   c3                      retq  
+
+
+ 0000000000000000 <.text>:
+   0:   55                      push   %rbp
+   1:   48 89 e5                mov    %rsp,%rbp
+   4:   48 83 ec 20             sub    $0x20,%rsp
+   8:   c7 45 fc 01 00 00 00    movl   $0x1,-0x4(%rbp)
+   f:   c7 45 f8 00 00 00 00    movl   $0x0,-0x8(%rbp)
+  16:   c7 45 f4 00 00 00 00    movl   $0x0,-0xc(%rbp)
+  1d:   c7 45 f0 00 00 00 00    movl   $0x0,-0x10(%rbp)
+  24:   c7 45 ec 00 00 00 00    movl   $0x0,-0x14(%rbp)
+  2b:   8b 45 fc                mov    -0x4(%rbp),%eax
+  2e:   c9                      leaveq 
+  2f:   c3                      retq 
+
+  0000000000000000 <.text>:
+   0:   55                      push   %rbp
+   1:   48 89 e5                mov    %rsp,%rbp
+   4:   48 83 ec 20             sub    $0x20,%rsp
+   8:   c7 45 fc 01 00 00 00    movl   $0x1,-0x4(%rbp)
+   f:   c7 45 f8 02 00 00 00    movl   $0x2,-0x8(%rbp)
+  16:   c7 45 f4 03 00 00 00    movl   $0x3,-0xc(%rbp)
+  1d:   c7 45 f0 04 00 00 00    movl   $0x4,-0x10(%rbp)
+  24:   c7 45 ec 05 00 00 00    movl   $0x5,-0x14(%rbp)
+  2b:   89 7d fc                mov    %edi,-0x4(%rbp)
+  2e:   89 75 fc                mov    %esi,-0x4(%rbp)
+  31:   89 55 fc                mov    %edx,-0x4(%rbp)
+  34:   8b 45 fc                mov    -0x4(%rbp),%eax
+  37:   c9                      leaveq 
+  38:   c3                      retq   

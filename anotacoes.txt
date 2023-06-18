@@ -1,0 +1,57 @@
+max de 5 var, kd uma ocupa 4 bytes (int), 
+entao total de 20 bytes e menor multiplo de 16 maior que 20 = 32 bytes de espeaço para colocar no RA 
+para colocar as variaveis na pilha
+
+fazer funcao que calcula endereço a partir da variavel
+end(v2)= end(v1) - 1*4
+end(v3)= end(v1) - 2*4
+
+end(vx)= end(v1) - (x-1)*4
+
+casos: 
+constante para pilha: 4 bytes depois do end (3 bytes)
+
+pilha para o registrador: so colocar end
+
+registrador pra a pilha: so colcar end
+(o que muda entre os registradores de argumeto sao os bytes do meio: edi: 7d, esi: 75, edx:55)
+
+constante para o registrador: 4 bytes depois do end (1 byte)  (b8=eax)
+
+usar um valor da pilah para aumentar o valor de um registrador: 4 bytes depois do end (1 byte) (b8=eax)
+
+
+var para var= armazenar no eax e depois armazenar no end da outra var
+
+par para var= armazenar no end da var
+
+constnate para var= armazenar no end da var
+
+vetor de 30 espaços com o end de cada inicio de linha (pear depois do /n)
+
+vetor de 30 espaços com a presencia ou ausencia de ret
+
+em cada ret calcular o offset e preencher os espaços em branco cm o offset
+
+vetor de 30 espaços com o endereço para onde ir ou ausencia de iflez(-1)
+
+em cada iflez calcular o offset e preencher os espaços em branco cm o offset
+
+para calcular offset para o jmp: endereço da linha que do final - endereço da prox linha da q eu estoy
+
+para calcular offset para o iflez: endereço da linha n - endereço da prox linha da q eu estoy
+
+usar jle para iflez n
+
+cont n de bytes
+
+
+
+
+
+
+
+
+
+
+
