@@ -300,27 +300,116 @@ usar jle para iflez n
 cont n de bytes
 */
 
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include "gera.h"
 
 /* Definições de opcodes */
 
-#define PUSHQ 0x55 // Push %rbp
-#define MOVQ 0x48 0x89 0xe5 // Move %rsp para %rbp
-#define MOVLV10 0x41 0xba // Move $var para %r10d
-#define MOVLV11 0x41 0xbb // Move $var para %r11d
-#define MOVLM10 0x44 0x8b 0x55 // Move alguém da memória para %r10d (precisa colocar os 8 bits de offset de %rbp quando usar)
-#define MOVLM11 0x44 0x8b 0x5d // Move alguém da memória para %r11d (precisa colocar os 8 bits de offset de %rbp quando usar)
-#define MOVL11M 0x44 0x89 0x5d // Move %r11d para a memória (precisa colocar os 8 bits de offset de %rbp quando usar)
-#define ADDL 0x45 0x01 0xd3 // Soma %r10d com %r11d e coloca o resultado em %r11d
-#define SUBL 0x45 0x29 0xd3 // Subtrai %r10d com %r11d e coloca o resultado em %r11d
-#define IMULL 0x45 0x0f 0xaf 0xda // Multiplica %r10d com %r11d e coloca o resultado em %r11d
-#define CMPL010 0x41 0x83 0xfa 0x00 // Compara %r10d com $0
-#define CMPL011 0x41 0x83 0xfb 0x00 // Compara %r11d com $0
-#define JLE 0x7e // Jump if less or equal (precisiona colocar o offset de 8 bits para a posição de memória que for pular quando usar)
-#define RET 0xc3 // Return
-#define LEAVE 0xc9 // Leave
+#define PUSHQ "55" // Push %rbp
+#define MOVQ "48 89 e5" // Move %rsp para %rbp
+#define MOVLV10 "41 ba" // Move $var para %r10d
+#define MOVLV11 "41 bb" // Move $var para %r11d
+#define MOVLM10 "44 8b 55" // Move alguém da memória para %r10d (precisa colocar os 8 bits de offset de %rbp quando usar)
+#define MOVLM11 "44 8b 5d" // Move alguém da memória para %r11d (precisa colocar os 8 bits de offset de %rbp quando usar)
+#define MOVL11M "44 89 5d" // Move %r11d para a memória (precisa colocar os 8 bits de offset de %rbp quando usar)
+#define ADDL "45 01 d3" // Soma %r10d com %r11d e coloca o resultado em %r11d
+#define SUBL "45 29 d3" // Subtrai %r10d com %r11d e coloca o resultado em %r11d
+#define IMULL "45 0f af da" // Multiplica %r10d com %r11d e coloca o resultado em %r11d
+#define CMPL010 "41 83 fa 00" // Compara %r10d com $0
+#define CMPL011 "41 83 fb 00" // Compara %r11d com $0
+#define JLE "7e" // Jump if less or equal (precisiona colocar o offset de 8 bits para a posição de memória que for pular quando usar)
+#define RET "c3" // Return
+#define LEAVE "c9" // Leave
+
+typedef struct {
+    char *nome;
+    char *bytes;
+} Instrucao;
+
+Instrucao instrucoes[] = {
+    {"PUSHQ", PUSHQ},
+    {"MOVQ", MOVQ},
+    {"MOVLV10", MOVLV10},
+    {"MOVLV11", MOVLV11},
+    {"MOVLM10", MOVLM10},
+    {"MOVLM11", MOVLM11},
+    {"MOVL11M", MOVL11M},
+    {"ADDL", ADDL},
+    {"SUBL", SUBL},
+    {"IMULL", IMULL},
+    {"CMPL010", CMPL010},
+    {"CMPL011", CMPL011},
+    {"JLE", JLE},
+    {"RET", RET},
+    {"LEAVE", LEAVE}
+};
+
+#define NUM_INSTRUCOES (sizeof(instrucoes) / sizeof(Instrucao))
+
+// Usada para converter um inteiro (de 32 bits) para o seu valor hexadecimal em um texto para uma string.
+char* int32ToHexString(int num) {
+    char *hexStr = (char *)malloc(sizeof(char) * 12); // 8 para o caber 4 bytes (8 hex's) + 3 espaços em branco + 1 para o caractere nulo '\0'
+    if(hexStr == NULL) {
+        printf("Falha na alocação de memória!\n");
+        exit(1);
+    }
+    
+    sprintf(hexStr, "%02X", (num & 0xFF000000) >> 24); // Extrai o byte mais significativo
+    hexStr[2] = ' '; // adiciona um espaço
+
+    sprintf(hexStr + 3, "%02X", (num & 0x00FF0000) >> 16); // Extrai o segundo byte mais significativo
+    hexStr[5] = ' '; // adiciona um espaço
+
+    sprintf(hexStr + 6, "%02X", (num & 0x0000FF00) >> 8); // Extrai o terceiro byte mais significativo
+    hexStr[8] = ' '; // adiciona um espaço
+
+    sprintf(hexStr + 9, "%02X", num & 0x000000FF); // Extrai o byte menos significativo
+
+    return hexStr;
+}
+
+// Função para converter um único byte para uma string hexadecimal.
+char* byteToHexString(unsigned char num) {
+    char *hexStr = (char *)malloc(sizeof(char) * 4); // 2 para os caracteres hexadecimais, 1 para o espaço " ", e 1 para nulo '\0'
+    if(hexStr == NULL) {
+        printf("Falha na alocação de memória!\n");
+        exit(1);
+    }
+    sprintf(hexStr, " %02x", num); // %02X imprime o valor hexadecimal com 2 caracteres, preenchidos com zero se necessário.
+    return hexStr;
+}
+
+// Usada pela funcao adicionarInstrucao abaixo.
+char* encontrarInstrucao(char* nome) {
+    for (int i = 0; i < NUM_INSTRUCOES; i++) {
+        if (strcmp(instrucoes[i].nome, nome) == 0) {
+            return instrucoes[i].bytes;
+        }
+    }
+    return NULL; // Se a instrução não for encontrada
+}
+
+void adicionarInstrucao(unsigned char* codigo, char* nomeInstrucao, int* posicao) {
+    char *instrucao = encontrarInstrucao(nomeInstrucao);
+    if (instrucao == NULL) {
+        printf("Instrução desconhecida: %s\n", nomeInstrucao);
+        return;
+    }
+
+    char *token;
+    unsigned int numHex;
+    /* Obtém o primeiro token */
+    token = strtok(instrucao, " ");
+    /* caminha através de outros tokens */
+    while( token != NULL ) {
+        sscanf(token, "%x", &numHex);
+        codigo[*posicao] = (unsigned char)numHex;
+        (*posicao)++;
+        token = strtok(NULL, " ");
+    }
+}
 
 static void error (const char *msg, int line) {
   fprintf(stderr, "erro %s na linha %d\n", msg, line);
@@ -333,7 +422,10 @@ funcp gera (FILE *f, unsigned char codigo[])
 {
   int line = 1;
   int  c;
+  int offsetMem;
 
+  char *offsetMemString;
+  char *instrucaoString;
   // vetor de 30 espaços com o endereco de cada inicio de linha (pegar depois do /n)
   // int enderecos[30];
 
@@ -1099,6 +1191,57 @@ funcp gera (FILE *f, unsigned char codigo[])
 
           printf("\nValores printados:\n\n\tidx0: %d, idx1: %d, idx2: %d, op: %c, var0: %c, var1: %c, var2: %c\n\nacabou de printar valores.\n", idx0, idx1, idx2, op, var0, var1, var2);
 
+          offsetMem = -4 * idx1;
+              
+          offsetMemString = byteToHexString(offsetMem);
+
+          strcpy(instrucaoString, MOVLM10);
+          strcat(instrucaoString, offsetMemString);
+
+          printf("\nImprimindo string: %s\n", instrucaoString);
+
+          free(instrucaoString);
+
+          /* 4 posibilidades: var1 = v e var2 = v, var1 = $ e var2 = v, var1 = v e var2 = $, var1 = $ e var2 = $. tal que $ = constante e v = variavel. */
+          /*switch(var1) {
+            case 'v': {
+
+              offsetmem = -4 * idx1;
+              
+              offsetmemString = byteToHexString(offsetmem);
+
+              strcpy(instrucaoString, "MOVLM10");
+              printf("%s", instrucaoString);
+              
+
+              switch(var2) {
+                case 'v': {
+                  
+                  break;
+                }
+
+                case '$': {
+
+                  break;
+                }
+              }
+              break;
+            }
+
+            case '$': {
+              switch(var2) {
+                case 'v': {
+
+                  break;
+                }
+
+                case '$': {
+
+                  break;
+                }
+              }
+              break;
+          } */
 
         }
         break;
