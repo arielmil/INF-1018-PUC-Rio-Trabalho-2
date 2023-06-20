@@ -405,8 +405,6 @@ funcp gera (FILE *f, unsigned char codigo[])
   int end = 0;
   int i = 0;
 
-  int valVar; // valor da variavel 
-
   char offsetMem; // Offset de memória para as váriaveis
 
   // coloca todo o codigo assembly no vetor codigo
@@ -1171,67 +1169,16 @@ funcp gera (FILE *f, unsigned char codigo[])
             error("comando invalido", line);
           printf("%d %c%d = %c%d %c %c%d\n", line, var0, idx0, var1, idx1, op, var2, idx2);
 
-          /* 4 posibilidades: var1 = v e var2 = v, var1 = $ e var2 = v, var1 = v e var2 = $, var1 = $ e var2 = $. tal que $ = constante e v = variavel. */
+          printf("\nValores printados:\n\n\tidx0: %d, idx1: %d, idx2: %d, op: %c, var0: %c, var1: %c, var2: %c\n\n", idx0, idx1, idx2, op, var0, var1, var2);
 
+          /* 4 posibilidades: var1 = v e var2 = v, var1 = $ e var2 = v, var1 = v e var2 = $, var1 = $ e var2 = $. tal que $ = constante e v = variavel. */
           if (var1 == 'v' && var2 == 'v') { // se for variavel e variavel
 
-            // Copia o valor da variavel 1 (Na memóriaaaa thcetcherereee) para o registrador %r10d
             offsetMem = -4 * idx1;
-            adicionarInstrucao(codigo, "MOVLM10", &end);
-            codigo[end] = offsetMem;
-            end++;
-
-            // Copia o valor da variavel 2 (Na memóriaaaa thcetcherereee) para o registrador %r11d
-            offsetMem = -4 * idx2;
-            adicionarInstrucao(codigo, "MOVLM11", &end);
-            codigo[end] = offsetMem;
-            end++;
-
-          }
-
-          else if (var1 == "v" && var2 == "$") {
-            // Copia o valor da variavel 1 (Na memóriaaaa thcetcherereee) para o registrador %r10d
-            offsetMem = -4 * idx1;
-            adicionarInstrucao(codigo, "MOVLM10", &end);
-            codigo[end] = offsetMem;
-            end++;
-          }
-
-          else if (var1 == "$" && var2 == "v") {
-          }
-
-          else if (var1 == "$" && var2 == "$") {
-          }
-
-          else {
-            error("comando invalido", line);
-          }
-
-           // Faz a operação aritmética
-          switch (op) {
-            case '+': {
-              adicionarInstrucao(codigo, "ADDL", &end);
-              break;
-            }
-
-            case '-': {
-              adicionarInstrucao(codigo, "SUBL", &end);
-              break;
-            }
-
-            case '*': {
-              adicionarInstrucao(codigo, "IMULL", &end);
-              break;
-            }
-
-            default: error("comando desconhecido", line);
-            }
-
-            // Copia o valor do registrador %r11d para a variavel 0 (Na memóriaaaa thcetcherereee)
-            offsetMem = -4 * idx0;
             adicionarInstrucao(codigo, "MOVL11M", &end);
             codigo[end] = offsetMem;
             end++;
+          }
         }
         
         break;
