@@ -304,6 +304,22 @@ cont n de bytes
 #include <string.h>
 #include "gera.h"
 
+#define PUSHQ 0x55 // Push %rbp
+#define MOVQ 0x48 0x89 0xe5 // Move %rsp para %rbp
+#define MOVLV10 0x41 0xba // Move $var para %r10d
+#define MOVLV11 0x41 0xbb // Move $var para %r11d
+#define MOVLM10 0x44 0x8b 0x55 // Move alguém da memória para %r10d (precisa colocar os 8 bits de offset de %rbp quando usar)
+#define MOVLM11 0x44 0x8b 0x5d // Move alguém da memória para %r11d (precisa colocar os 8 bits de offset de %rbp quando usar)
+#define MOVL11M 0x44 0x89 0x5d // Move %r11d para a memória (precisa colocar os 8 bits de offset de %rbp quando usar)
+#define ADDL 0x45 0x01 0xd3 // Soma %r10d com %r11d e coloca o resultado em %r11d
+#define SUBL 0x45 0x29 0xd3 // Subtrai %r10d com %r11d e coloca o resultado em %r11d
+#define IMULL 0x45 0x0f 0xaf 0xda // Multiplica %r10d com %r11d e coloca o resultado em %r11d
+#define CMPL010 0x41 0x83 0xfa 0x00 // Compara %r10d com $0
+#define CMPL011 0x41 0x83 0xfb 0x00 // Compara %r11d com $0
+#define JLE 0x7e // Jump if less or equal (precisiona colocar o offset de 8 bits para a posição de memória que for pular quando usar)
+#define RET 0xc3 // Return
+#define LEAVE 0xc9 // Leave
+
 static void error (const char *msg, int line) {
   fprintf(stderr, "erro %s na linha %d\n", msg, line);
   exit(EXIT_FAILURE);
@@ -329,26 +345,19 @@ funcp gera (FILE *f, unsigned char codigo[])
 
   // aloca 32 bytes para as variaveis
   codigo[end] = 0x55; //push   %rbp
-  end++;
 
   //mov    %rsp,%rbp
-  codigo[end] = 0x48; 
-  end++;
-  codigo[end] = 0x89;
-  end++;
-  codigo[end] = 0xe5;
-  end++;
+  codigo[end + 1] = 0x48; 
+  codigo[end + 2] = 0x89;
+  codigo[end + 3] = 0xe5;
 
   //sub    $0x20,%rsp
-  codigo[end] = 0x48;
-  end++;
-  codigo[end] = 0x83;
-  end++;
-  codigo[end] = 0xec;
-  end++;
-  codigo[end] = 0x20;
-  end++;
-
+  codigo[end + 4] = 0x48;
+  codigo[end + 5] = 0x83;
+  codigo[end + 6] = 0xec;
+  codigo[end + 7] = 0x20;
+  
+  end = end + 8;
   // le o arquivo:
 
   while ((c = fgetc(f)) != EOF) {
@@ -1077,6 +1086,7 @@ funcp gera (FILE *f, unsigned char codigo[])
         }
       }
         else { /* operaÃ§Ã£o aritmÃ©tica */ // ariel implemente do seu jeito aqui
+
           char var2, op;
           int idx2;
           if (c0 != '=')
@@ -1084,6 +1094,10 @@ funcp gera (FILE *f, unsigned char codigo[])
           if (fscanf(f, " %c%d %c %c%d", &var1, &idx1, &op, &var2, &idx2) != 5)
             error("comando invalido", line);
           printf("%d %c%d = %c%d %c %c%d\n", line, var0, idx0, var1, idx1, op, var2, idx2);
+
+          printf("\nValores printados:\n\n\tidx0: %d, idx1: %d, idx2: %d, op: %c, var0: %c, var1: %c, var2: %c\n\nacabou de printar valores.\n", idx0, idx1, idx2, op, var0, var1, var2);
+
+
         }
         break;
       }
