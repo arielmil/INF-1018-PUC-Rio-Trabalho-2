@@ -304,6 +304,8 @@ cont n de bytes
 #include <string.h>
 #include "gera.h"
 
+/* Definições de opcodes */
+
 #define PUSHQ 0x55 // Push %rbp
 #define MOVQ 0x48 0x89 0xe5 // Move %rsp para %rbp
 #define MOVLV10 0x41 0xba // Move $var para %r10d
