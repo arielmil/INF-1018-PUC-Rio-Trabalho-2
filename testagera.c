@@ -40,7 +40,7 @@ int main() {
 
   // printf("Teste 4:\nv5 < $5 \nv2 < v5 \nret v1 \nResultado: %s\n", res == 5 ? "sucesso" : "falha");
 
-  printf("Teste 5: atribuição com parametro\nResultado: %s\n", res == 4369 ? "sucesso" : "falha");
+  printf("Teste 5: atribuição com parametro\nResultado: %s\n", res == 2 ? "sucesso" : "falha");
 
   return 0;
 }

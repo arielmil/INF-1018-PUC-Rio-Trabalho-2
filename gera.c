@@ -363,7 +363,7 @@ funcp gera (FILE *f, unsigned char codigo[])
         if (var0 == '$')//retorna constante
         {
           // escreve no codigo
-          codigo[end] = 0xb8;
+          codigo[end] = 0x8b;
           end++;
           // escreve o valor da constante em ate 4 bytes com for
           for (i = 0; i < 4; i++)
@@ -1076,7 +1076,7 @@ funcp gera (FILE *f, unsigned char codigo[])
           }
         }
       }
-        else { /* operaÃ§Ã£o aritmÃ©tica */
+        else { /* operaÃ§Ã£o aritmÃ©tica */ // ariel implemente do seu jeito aqui
           char var2, op;
           int idx2;
           if (c0 != '=')
@@ -1087,7 +1087,7 @@ funcp gera (FILE *f, unsigned char codigo[])
         }
         break;
       }
-      case 'i': { /* desvio condicional (a fazer, ariel)*/
+      case 'i': { /* desvio condicional (a fazer, ariel)*/ // thiago vai adiantando essa parte aqui
         char var0;
         int idx0, n;
         if (fscanf(f, "flez %c%d %d", &var0, &idx0, &n) != 3)

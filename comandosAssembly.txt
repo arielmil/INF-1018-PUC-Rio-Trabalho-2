@@ -1,3 +1,95 @@
+
+
+Thiago:
+.text
+pushq % rbp
+movq % rsp , % rbp
+subq $32 , % rsp
+movl $1 , -4(% rbp)
+movl $2 , -8(% rbp)
+
+# coloca v1 no v3
+movl -4(% rbp) , % eax
+movl % eax , -12(% rbp)
+
+# soma v2 ao v3
+addl -8(% rbp) , %eax
+movl % eax , -12(% rbp)
+
+# fim
+leave
+ret
+
+
+0000000000000000 <.text>:
+   0:   55                      push   %rbp
+   1:   48 89 e5                mov    %rsp,%rbp
+   4:   48 83 ec 20             sub    $0x20,%rsp
+   8:   c7 45 fc 01 00 00 00    movl   $0x1,-0x4(%rbp)
+   f:   c7 45 f8 02 00 00 00    movl   $0x2,-0x8(%rbp)
+  16:   8b 45 fc                mov    -0x4(%rbp),%eax
+  19:   89 45 f4                mov    %eax,-0xc(%rbp)
+  1c:   03 45 f8                add    -0x8(%rbp),%eax
+  1f:   89 45 f4                mov    %eax,-0xc(%rbp)
+  22:   c9                      leaveq 
+  23:   c3                      retq  
+
+
+Ariel:
+.text
+pushq % rbp
+movq % rsp , % rbp
+subq $32 , % rsp
+movl $1 , -4(% rbp)
+movl $2 , -8(% rbp)
+
+movl -4(% rbp) , %r10d
+movl -8(% rbp) , %r11d
+addl %r11d , %r10d
+movl %r11d , -12(% rbp)
+
+movl -12(% rbp), %eax
+
+# fim
+leave
+ret
+
+
+0000000000000000 <.text>:
+   0:   55                      push   %rbp
+   1:   48 89 e5                mov    %rsp,%rbp
+   4:   48 83 ec 20             sub    $0x20,%rsp
+   8:   c7 45 fc 01 00 00 00    movl   $0x1,-0x4(%rbp)
+   f:   c7 45 f8 02 00 00 00    movl   $0x2,-0x8(%rbp)
+  16:   44 8b 55 fc             mov    -0x4(%rbp),%r10d
+  1a:   44 8b 5d f8             mov    -0x8(%rbp),%r11d
+  1e:   45 01 da                add    %r11d,%r10d
+  21:   44 89 5d f4             mov    %r11d,-0xc(%rbp)
+  25:   8b 45 f4                mov    -0xc(%rbp),%eax
+  28:   c9                      leaveq 
+  29:   c3                      retq   
+
+
+
+
+0000000000000000 <.text>:
+   0:   55                      push   %rbp
+   1:   48 89 e5                mov    %rsp,%rbp
+   4:   48 83 ec 20             sub    $0x20,%rsp
+   8:   c7 45 fc 01 00 00 00    movl   $0x1,-0x4(%rbp)
+   f:   c7 45 f0 02 00 00 00    movl   $0x2,-0x10(%rbp)
+  16:   44 8b 55 fc             mov    -0x4(%rbp),%r10d
+  1a:   44 8b 5d f0             mov    -0x10(%rbp),%r11d
+  1e:   45 01 da                add    %r11d,%r10d
+  21:   44 89 5d f4             mov    %r11d,-0xc(%rbp)
+  25:   8b 45 f4                mov    -0xc(%rbp),%eax
+  28:   c9                      leaveq 
+  29:   c3                      retq   
+
+
+
+
+
 0000000000000000 <inicio>:
    0:   55                      push   %rbp
    1:   48 89 e5                mov    %rsp,%rbp
