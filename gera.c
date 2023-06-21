@@ -1195,9 +1195,18 @@ funcp gera (FILE *f, unsigned char codigo[])
             adicionarInstrucao(codigo, "MOVLM10", &end);
             codigo[end] = offsetMem;
             end++;
+
+            // Copia o valor da constante 2 para o registrador %r11d
+            adicionarInstrucao(codigo, "MOVLV11", &end);
+            /* incluir aqui função que adiciona o inteiro recebido no código */
+            ;
           }
 
           else if (var1 == "$" && var2 == "v") {
+              // escreve o valor da constante em ate 4 bytes com for
+              adicionarInstrucao(codigo, "MOVLV10", &end);
+              codigo[end] = idx0;
+              end++;
           }
 
           else if (var1 == "$" && var2 == "$") {
