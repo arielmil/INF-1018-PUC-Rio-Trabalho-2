@@ -1190,7 +1190,7 @@ funcp gera (FILE *f, unsigned char codigo[])
 
           }
 
-          else if (var1 == "v" && var2 == "$") {
+          else if (var1 == 'v' && var2 == '$') {
             // Copia o valor da variavel 1 (Na memóriaaaa thcetcherereee) para o registrador %r10d
             offsetMem = -4 * idx1;
             adicionarInstrucao(codigo, "MOVLM10", &end);
@@ -1203,7 +1203,7 @@ funcp gera (FILE *f, unsigned char codigo[])
             end++;
           }
 
-          else if (var1 == "$" && var2 == "v") {
+          else if (var1 == '$' && var2 == 'v') {
             // Copia o valor da constante 2 para o registrador %r11d  
             adicionarInstrucao(codigo, "MOVLV10", &end);
             codigo[end] = idx2;
@@ -1215,7 +1215,7 @@ funcp gera (FILE *f, unsigned char codigo[])
             end++;
           }
 
-          else if (var1 == "$" && var2 == "$") {
+          else if (var1 == '$' && var2 == '$') {
             // Copia o valor da constante 2 para o registrador %r11d  
             adicionarInstrucao(codigo, "MOVLV10", &end);
             codigo[end] = idx2;
