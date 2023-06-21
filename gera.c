@@ -347,6 +347,15 @@ Instrucao instrucoes[] = {
 
 #define NUM_INSTRUCOES (sizeof(instrucoes) / sizeof(Instrucao))
 
+void escreveLittleEndian(int valor, unsigned char *codigo, int *end) {
+  int i;
+  for (i = 0; i < 4; i++)
+    {
+      codigo[*end] = valor >> (i*8);
+      *end++;
+    }
+}
+
 // Usada pela funcao adicionarInstrucao abaixo.
 char* encontrarInstrucao(char* nome) {
     for (int i = 0; i < NUM_INSTRUCOES; i++) {
@@ -1199,15 +1208,13 @@ funcp gera (FILE *f, unsigned char codigo[])
 
             // Copia o valor da constante 2 para o registrador %r11d  
             adicionarInstrucao(codigo, "MOVLV11", &end);
-            codigo[end] = idx2;
-            end++;
+            escreveLittleEndian(idx2, codigo, &end);
           }
 
           else if (var1 == '$' && var2 == 'v') {
             // Copia o valor da constante 2 para o registrador %r11d  
             adicionarInstrucao(codigo, "MOVLV10", &end);
-            codigo[end] = idx1;
-            end++;
+            escreveLittleEndian(idx1, codigo, &end);
 
             // Copia o valor da constante 2 para o registrador %r11d
             offsetMem = -4 * idx2;
@@ -1219,13 +1226,11 @@ funcp gera (FILE *f, unsigned char codigo[])
           else if (var1 == '$' && var2 == '$') {
             // Copia o valor da constante 2 para o registrador %r11d  
             adicionarInstrucao(codigo, "MOVLV10", &end);
-            codigo[end] = idx1;
-            end++;
+            escreveLittleEndian(idx1, codigo, &end);
 
             // Copia o valor da constante 2 para o registrador %r11d  
             adicionarInstrucao(codigo, "MOVLV11", &end);
-            codigo[end] = idx2;
-            end++;
+            escreveLittleEndian(idx2, codigo, &end);
           }
 
           else {
