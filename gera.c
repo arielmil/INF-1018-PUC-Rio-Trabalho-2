@@ -1170,7 +1170,7 @@ funcp gera (FILE *f, unsigned char codigo[])
           if (fscanf(f, " %c%d %c %c%d", &var1, &idx1, &op, &var2, &idx2) != 5)
             error("comando invalido", line);
           printf("%d %c%d = %c%d %c %c%d\n", line, var0, idx0, var1, idx1, op, var2, idx2);
-
+          
           /* 4 posibilidades: var1 = v e var2 = v, var1 = $ e var2 = v, var1 = v e var2 = $, var1 = $ e var2 = $. tal que $ = constante e v = variavel. */
 
           if (var1 == 'v' && var2 == 'v') { // se for variavel e variavel
@@ -1230,7 +1230,7 @@ funcp gera (FILE *f, unsigned char codigo[])
               break;
             }
 
-            default: error("comando desconhecido", line);
+            //default: error("comando desconhecido", line);
             }
 
             // Copia o valor do registrador %r11d para a variavel 0 (Na memóriaaaa thcetcherereee)
