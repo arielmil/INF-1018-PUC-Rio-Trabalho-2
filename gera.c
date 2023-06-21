@@ -1171,6 +1171,7 @@ funcp gera (FILE *f, unsigned char codigo[])
             error("comando invalido", line);
           printf("%d %c%d = %c%d %c %c%d\n", line, var0, idx0, var1, idx1, op, var2, idx2);
           
+          printf("\nPrintando valores:\tvar0: %c, var1: %c, var2: %c, op: %c, idx0: %d, idx1: %d, idx2: %d\nTerminei de printar. Agora vou fazer um pão. Hehehe ;)\n", var0, var1, var2, op, idx0, idx1, idx2);
           /* 4 posibilidades: var1 = v e var2 = v, var1 = $ e var2 = v, var1 = v e var2 = $, var1 = $ e var2 = $. tal que $ = constante e v = variavel. */
 
           if (var1 == 'v' && var2 == 'v') { // se for variavel e variavel
@@ -1198,7 +1199,7 @@ funcp gera (FILE *f, unsigned char codigo[])
 
             // Copia o valor da constante 2 para o registrador %r11d  
             adicionarInstrucao(codigo, "MOVLV11", &end);
-            codigo[end] = idx0;
+            codigo[end] = idx2;
             end++;
           }
 
@@ -1207,6 +1208,8 @@ funcp gera (FILE *f, unsigned char codigo[])
           }
 
           else if (var1 == "$" && var2 == "$") {
+            
+
           }
 
           else {
@@ -1230,7 +1233,7 @@ funcp gera (FILE *f, unsigned char codigo[])
               break;
             }
 
-            //default: error("comando desconhecido", line);
+            default: error("comando desconhecido", line);
             }
 
             // Copia o valor do registrador %r11d para a variavel 0 (Na memóriaaaa thcetcherereee)
