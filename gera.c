@@ -1204,12 +1204,27 @@ funcp gera (FILE *f, unsigned char codigo[])
           }
 
           else if (var1 == "$" && var2 == "v") {
-              
+            // Copia o valor da constante 2 para o registrador %r11d  
+            adicionarInstrucao(codigo, "MOVLV10", &end);
+            codigo[end] = idx2;
+            end++;
+
+            // Copia o valor da constante 2 para o registrador %r11d  
+            adicionarInstrucao(codigo, "MOVLV11", &end);
+            codigo[end] = idx2;
+            end++;
           }
 
           else if (var1 == "$" && var2 == "$") {
-            
+            // Copia o valor da constante 2 para o registrador %r11d  
+            adicionarInstrucao(codigo, "MOVLV10", &end);
+            codigo[end] = idx2;
+            end++;
 
+            // Copia o valor da constante 2 para o registrador %r11d  
+            adicionarInstrucao(codigo, "MOVLV11", &end);
+            codigo[end] = idx2;
+            end++;
           }
 
           else {
@@ -1236,7 +1251,7 @@ funcp gera (FILE *f, unsigned char codigo[])
             default: error("comando desconhecido", line);
             }
 
-            // Copia o valor do registrador %r11d para a variavel 0 (Na memóriaaaa thcetcherereee)
+            // Copia o valor do registrador %r11d para a variavel 0 (Na memóriaaaa thcetcherereee) (Salva %r11d na memória)
             offsetMem = -4 * idx0;
             adicionarInstrucao(codigo, "MOVL11M", &end);
             codigo[end] = offsetMem;
