@@ -40,7 +40,7 @@ int main() {
 
   // printf("Teste 4:\nv5 < $5 \nv2 < v5 \nret v1 \nResultado: %s\n", res == 5 ? "sucesso" : "falha");
 
-  printf("Teste 5: \tSoma de v1 = 7 e v2 = 3. \nResultado: %s\n", res == 6 ? "sucesso" : "falha");
+  printf("Teste 5: \tSoma de v1 = 4 e v2 = $2. \nResultado: %s\n", res == 6 ? "sucesso" : "falha");
 
   return 0;
 }

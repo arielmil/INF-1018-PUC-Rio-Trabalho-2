@@ -1206,19 +1206,20 @@ funcp gera (FILE *f, unsigned char codigo[])
           else if (var1 == '$' && var2 == 'v') {
             // Copia o valor da constante 2 para o registrador %r11d  
             adicionarInstrucao(codigo, "MOVLV10", &end);
-            codigo[end] = idx2;
+            codigo[end] = idx1;
             end++;
 
-            // Copia o valor da constante 2 para o registrador %r11d  
+            // Copia o valor da constante 2 para o registrador %r11d
+            offsetMem = -4 * idx2;
             adicionarInstrucao(codigo, "MOVLV11", &end);
-            codigo[end] = idx2;
+            codigo[end] = offsetMem;
             end++;
           }
 
           else if (var1 == '$' && var2 == '$') {
             // Copia o valor da constante 2 para o registrador %r11d  
             adicionarInstrucao(codigo, "MOVLV10", &end);
-            codigo[end] = idx2;
+            codigo[end] = idx1;
             end++;
 
             // Copia o valor da constante 2 para o registrador %r11d  
