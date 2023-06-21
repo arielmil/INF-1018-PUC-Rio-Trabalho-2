@@ -316,6 +316,7 @@ cont n de bytes
 #define ADDL "45 01 d3" // Soma %r10d com %r11d e coloca o resultado em %r11d
 #define SUBL "45 29 d3" // Subtrai %r10d com %r11d e coloca o resultado em %r11d
 #define IMULL "45 0f af da" // Multiplica %r10d com %r11d e coloca o resultado em %r11d
+#define N1IMULL "45 6b db ff" // Multiplica %r11d com -1 e coloca o resultado em %r11d
 #define CMPL010 "41 83 fa 00" // Compara %r10d com $0
 #define CMPL011 "41 83 fb 00" // Compara %r11d com $0
 #define JLE "7e" // Jump if less or equal (precisiona colocar o offset de 8 bits para a posição de memória que for pular quando usar)
@@ -338,11 +339,13 @@ Instrucao instrucoes[] = {
     {"ADDL", ADDL},
     {"SUBL", SUBL},
     {"IMULL", IMULL},
+    {"N1IMULL", N1IMULL},
     {"CMPL010", CMPL010},
     {"CMPL011", CMPL011},
     {"JLE", JLE},
     {"RET", RET},
     {"LEAVE", LEAVE}
+
 };
 
 #define NUM_INSTRUCOES (sizeof(instrucoes) / sizeof(Instrucao))
@@ -352,7 +355,7 @@ void escreveLittleEndian(int valor, unsigned char *codigo, int *end) {
   for (i = 0; i < 4; i++)
     {
       codigo[*end] = valor >> (i*8);
-      *end++;
+      (*end)++;
     }
 }
 
@@ -1218,7 +1221,7 @@ funcp gera (FILE *f, unsigned char codigo[])
 
             // Copia o valor da constante 2 para o registrador %r11d
             offsetMem = -4 * idx2;
-            adicionarInstrucao(codigo, "MOVLV11", &end);
+            adicionarInstrucao(codigo, "MOVL11", &end);
             codigo[end] = offsetMem;
             end++;
           }
@@ -1246,6 +1249,8 @@ funcp gera (FILE *f, unsigned char codigo[])
 
             case '-': {
               adicionarInstrucao(codigo, "SUBL", &end);
+              
+              adicionarInstrucao(codigo, "N1IMULL", &end); //Primeiro faz a subtração de r10d por r11d (guarda o resultado em r11d), depois multiplica r11d por -1 para ajeitar o sinal do resultado
               break;
             }
 
