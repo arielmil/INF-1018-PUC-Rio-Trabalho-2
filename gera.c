@@ -304,6 +304,11 @@ cont n de bytes
 #include <string.h>
 #include "gera.h"
 
+/* Definicões de constantes */
+
+// maximo de linhas do codigo em simples
+#define MAX_LINHAS 1000
+
 /* Definições de opcodes */
 
 #define PUSHQ "55" // Push %rbp
@@ -323,6 +328,7 @@ cont n de bytes
 #define RET "c3" // Return
 #define LEAVE "c9" // Leave
 
+// Struct para guardar as instruções
 typedef struct {
     char *nome;
     char *bytes;
@@ -350,6 +356,15 @@ Instrucao instrucoes[] = {
 
 #define NUM_INSTRUCOES (sizeof(instrucoes) / sizeof(Instrucao))
 
+// Struct para guardar informações sobre os labels (Posição dos offsets no array codigo, e a linha que é para ele pular para no JLE)
+typedef struct IndiceLinha {
+
+  int indiceOffset;
+  int linha;
+
+} indiceLinha;
+
+// Funcao para escrever um inteiro em little endian
 void escreveLittleEndian(int valor, unsigned char *codigo, int *end) {
   int i;
   for (i = 0; i < 4; i++)
@@ -369,6 +384,7 @@ char* encontrarInstrucao(char* nome) {
     return NULL; // Se a instrução não for encontrada
 }
 
+// Funcao para adicionar uma instrucao (Pode ter mais de um byte) ao codigo
 void adicionarInstrucao(unsigned char* codigo, char* nomeInstrucao, int* posicao) {
     char *instrucao = encontrarInstrucao(nomeInstrucao);
     if (instrucao == NULL) {
@@ -417,9 +433,15 @@ funcp gera (FILE *f, unsigned char codigo[])
   int end = 0;
   int i = 0;
 
-  int valVar; // valor da variavel 
+  int indiceOffset; // Usado no ultimo for antes do final do return. Serve para saber qual o indice dos offsets no array codigo que tem o JLE
+  int indiceByteInicioLinha; // byte que indica o começo de uma linha no array codigo
 
-  char offsetMem; // Offset de memória para as váriaveis
+  char offsetMem; // Offset de memória para as váriaveis e pulos do JLE
+
+  int linhaByte[MAX_LINHAS]; // array que relaciona (i = numero da linha - 1) no arquivo em simples com o indice do primeiro byte da linha no array codigo para cada i.
+  indiceLinha labelPulaLinha[MAX_LINHAS]; // array que guarda a posição no array código de cada label (offset para o JLE), assim como a linha em que é para ele pular para (Com espaço o suficiente para todos os labels)
+  
+  int sizeLabelPulaLinha = 0; // quantidade de iflez's que tem no código
 
   // coloca todo o codigo assembly no vetor codigo
 
@@ -450,6 +472,9 @@ funcp gera (FILE *f, unsigned char codigo[])
   // le o arquivo:
 
   while ((c = fgetc(f)) != EOF) {
+
+    linhaByte[0] = 8; // mapeia a linha 0 para o byte 8 (inicio do codigo / byte de inicio da primeira linha)
+
     switch (c) {
       case 'r': { /* retorno funcionando*/
         char var0;
@@ -1274,25 +1299,78 @@ funcp gera (FILE *f, unsigned char codigo[])
       case 'i': { /* desvio condicional (a fazer, ariel)*/ // thiago vai adiantando essa parte aqui
         char var0;
         int idx0, n;
-        if (fscanf(f, "flez %c%d %d", &var0, &idx0, &n) != 3)
+        if (fscanf(f, "flez %c%d %d", &var0, &idx0, &n) != 3) {
             error("comando invalido", line);
-          printf("%d iflez %c%d %d\n", line, var0, idx0, n);
+        }
+        
+        printf("%d iflez %c%d %d\n", line, var0, idx0, n);
+
+        printf("\nPrintando valores:\tvar0: %c, idx0: %d, n: %d, line: %d\nTerminei de printar. Agora vou fazer um pão. Hehehe ;)\n", var0, idx0, n, line);
+
+        // Copia o valor da variavel (ou constante) para o registrador %r10d
+        switch(var0) {
+          case 'v': {
+            offsetMem = -4 * idx0;
+            adicionarInstrucao(codigo, "MOVLM10", &end);
+            codigo[end] = offsetMem;
+            end++;
+            break;
+          }
+          case '$': {
+            adicionarInstrucao(codigo, "MOVLV10", &end);
+            escreveLittleEndian(idx0, codigo, &end);
+            break;
+          }
+
+          default: error("comando desconhecido", line);
+        }
+
+        adicionarInstrucao(codigo, "CMP010", &end); // Compara o valor de r10d com 0
+        adicionarInstrucao(codigo, "JLE", &end); // Se r10d <= 0, pula para a linha n
+
+        labelPulaLinha[sizeLabelPulaLinha].linha = n;
+        labelPulaLinha[sizeLabelPulaLinha].indiceOffset = end;
+
+        sizeLabelPulaLinha++;
+        end++; // Pula o byte do offset
+
         break;
       }
       default: error("comando desconhecido", line);
     }
+
     line ++;
+
+    linhaByte[line] = end + 1; // Coloca a posição do byte de ínicio da próxima linha do array codigo no array linhaByte
+
     fscanf(f, " ");
   }
   //fim do arquivo
-        // coloca o fim do assmebly no vetor codigo:
-        //leave
-        codigo[end] = 0xc9;
-        end++;
 
-        //ret
-        codigo[end] = 0xc3;
-        end++;
-        // retornar para funcaoSimples do tipo funcp
-        return (funcp)codigo;
+  line = 0;
+  
+  // Preenche o array codigo com as labels corretas
+  for (i = 0; i < sizeLabelPulaLinha; i++) {
+
+    line = labelPulaLinha[i].linha; //O valor n lido de cada linha com iflez
+    indiceOffset = labelPulaLinha[i].indiceOffset; //O indice do byte de offset da linha com iflez
+
+    indiceByteInicioLinha = linhaByte[line]; //O indice do byte de inicio da linha que o iflez vai desviar para
+
+    offsetMem = indiceOffset - indiceByteInicioLinha; //Calcula o indice do offset fazendo indiceoffset - indiceByteInicioLinha
+
+    codigo[indiceOffset] = offsetMem; // Coloca o offset no array codigo
+
+  }
+
+  // coloca o fim do assmebly no vetor codigo:
+  //leave
+  codigo[end] = 0xc9;
+  end++;
+
+  //ret
+  codigo[end] = 0xc3;
+  end++;
+  // retornar para funcaoSimples do tipo funcp
+  return (funcp)codigo;
 }
