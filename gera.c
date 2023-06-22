@@ -433,8 +433,8 @@ funcp gera (FILE *f, unsigned char codigo[])
   int end = 0;
   int i = 0;
 
-  int indiceOffset; // Usado no ultimo for antes do final do return. Serve para saber qual o indice dos offsets no array codigo que tem o JLE
-  int indiceByteInicioLinha; // byte que indica o começo de uma linha no array codigo
+  char indiceOffset; // Usado no ultimo for antes do final do return. Serve para saber qual o indice dos offsets no array codigo que tem o JLE
+  char indiceByteInicioLinha; // byte que indica o começo de uma linha no array codigo
 
   char offsetMem; // Offset de memória para as váriaveis e pulos do JLE
 
@@ -1325,7 +1325,7 @@ funcp gera (FILE *f, unsigned char codigo[])
           default: error("comando desconhecido", line);
         }
 
-        adicionarInstrucao(codigo, "CMP010", &end); // Compara o valor de r10d com 0
+        adicionarInstrucao(codigo, "CMPL010", &end); // Compara o valor de r10d com 0
         adicionarInstrucao(codigo, "JLE", &end); // Se r10d <= 0, pula para a linha n
 
         labelPulaLinha[sizeLabelPulaLinha].linha = n;
