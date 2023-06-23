@@ -1,14 +1,36 @@
 .text
-pushq % rbp
-movq % rsp , % rbp
-subq $32 , % rsp
-movl $1 , -4(% rbp)
-movl $2 , -8(% rbp)
+.globl main
 
-movl $1, %r10d
-movl -8(% rbp) , %r11d
-addl %r11d , %r10d
-movl %r11d , -12(% rbp)
+main:
+
+    /* testando todos os comandos necessários para operações aritiméticas e algumas adicionais */
+    pushq %rbp
+    movq %rsp, %rbp
+
+    subq $32, %rsp
+
+    movl %edi, -4(%rbp)
+
+    movl -4(%rbp), %r10d
+    movl $1, %r11d
+    addl %r10d, %r11d
+    movl %r11d, -4(%rbp)
+
+    movl -4(%rsp), %r10d
+    cmpl $0, %r10d
+    jle end
+
+resto:
+
+    movl $0, %eax
+    leave
+    ret
+
+
+end:
+    movl $1, %eax
+    leave
+    ret
 
 movl -12(% rbp), %eax
 

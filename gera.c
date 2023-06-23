@@ -585,7 +585,14 @@ funcp gera (FILE *f, unsigned char codigo[])
               end++;
           }
         }
-      
+        // coloca o fim do assmebly no vetor codigo:
+        //leave
+        codigo[end] = 0xc9;
+        end++;
+
+        //ret
+        codigo[end] = 0xc3;
+        end++;
         break;
       }
       
@@ -622,8 +629,6 @@ funcp gera (FILE *f, unsigned char codigo[])
                 // idx1= 87 65 43 21 >> (1*2) = 00 87 65 43 || 21
                 // idx1= 87 65 43 21 >> (2*2) = 00 00 87 65 || 43 21
                 // idx1= 87 65 43 21 >> (3*2) = 00 00 00 87 || 65 43 21
-                
-
                 end++;
               }
             }
@@ -1336,8 +1341,7 @@ funcp gera (FILE *f, unsigned char codigo[])
         }
         
         printf("%d iflez %c%d %d\n", line, var0, idx0, n);
-
-        //printf("\nPrintando valores:\tvar0: %c, idx0: %d, n: %d, line: %d\nTerminei de printar. Agora vou fazer um pão. Hehehe ;)\n", var0, idx0, n, line);
+        //printf("\nPrintando valores:\tvar0: %c, idx0: %d, n: %d, line:\n", var0, idx0, n, line);
 
         // Copia o valor da variavel (ou constante) para o registrador %r10d
         switch(var0) {
@@ -1376,11 +1380,11 @@ funcp gera (FILE *f, unsigned char codigo[])
     indiceByte[line] = end + 1; // Coloca a posição do byte de ínicio da próxima linha do array codigo no array indiceByte
 
     fscanf(f, " ");
-  }
+  }//fim do arquivo
   
   qntLinhas = line; // Guarda a quantidade de linhas do arquivo (informação em que estava em line e que vai se perder em seguida)
   
-  //fim do arquivo
+  
 
   line = 0;
   
@@ -1397,15 +1401,6 @@ funcp gera (FILE *f, unsigned char codigo[])
     codigo[indiceOffset] = offsetMem; // Coloca o offset no array codigo
 
   }
-
-  // coloca o fim do assmebly no vetor codigo:
-  //leave
-  codigo[end] = 0xc9;
-  end++;
-
-  //ret
-  codigo[end] = 0xc3;
-  end++;
 
   imprimirCodigoMaquina(codigo, indiceByte, qntLinhas);
   // retornar para funcaoSimples do tipo funcp
