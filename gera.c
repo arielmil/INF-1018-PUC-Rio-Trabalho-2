@@ -1392,7 +1392,7 @@ funcp gera (FILE *f, unsigned char codigo[])
 
     indiceByteLinha = indiceByte[line]; //O indice do byte de inicio da linha que o iflez vai desviar para
 
-    offsetMem = - (indiceOffset - indiceByteLinha) + 1; //Calcula o indice do offset fazendo indiceoffset - indiceByteLinha
+    offsetMem = indiceOffset - indiceByteLinha; //Calcula o indice do offset fazendo indiceoffset - indiceByteLinha
 
     codigo[indiceOffset] = offsetMem; // Coloca o offset no array codigo
 
