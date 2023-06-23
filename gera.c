@@ -413,6 +413,39 @@ void adicionarInstrucao(unsigned char* codigo, char* nomeInstrucao, int* posicao
 
 }
 
+// Para imprimir o codigo em hexadecimal indicando cada linha
+void imprimirCodigoMaquina(unsigned char codigo[], int linhaByte[], int numLinhas) {
+    int i, j;
+
+    printf("\n");
+
+    for(i = 0; i < numLinhas; i++) {
+        int inicioLinha = linhaByte[i];
+        int fimLinha;
+
+        if(i == numLinhas - 1) { // Última linha
+            fimLinha = inicioLinha;
+            // percorre o array até encontrar leave (0xc3)
+            while(codigo[fimLinha] != 0xc3) {
+                fimLinha++;
+            }
+        } else {
+            fimLinha = linhaByte[i + 1] - 2;
+        }
+
+        if (i > 0) {
+          
+          printf("Linha %d:\t", i);
+
+          for(j = inicioLinha - 1; j <= fimLinha; j++) {
+            printf("%02x ", codigo[j]);
+          }
+
+          printf("\n");
+        }
+       
+    }
+}
 
 static void error (const char *msg, int line) {
   fprintf(stderr, "erro %s na linha %d\n", msg, line);
@@ -426,8 +459,7 @@ funcp gera (FILE *f, unsigned char codigo[])
   int line = 1;
   int  c;
 
-  // vetor de 30 espaços com o endereco de cada inicio de linha (pegar depois do /n)
-  // int enderecos[30];
+  int qntLinhas; // usada para a função imprimirCodigoMaquina
 
   // calcula o endereço de cada linha
   int end = 0;
@@ -471,9 +503,9 @@ funcp gera (FILE *f, unsigned char codigo[])
 
   // le o arquivo:
 
-  while ((c = fgetc(f)) != EOF) {
+  linhaByte[0] = 8; // mapeia a linha 0 para o byte 8 (inicio do codigo / byte de inicio da primeira linha)
 
-    linhaByte[0] = 8; // mapeia a linha 0 para o byte 8 (inicio do codigo / byte de inicio da primeira linha)
+  while ((c = fgetc(f)) != EOF) {
 
     switch (c) {
       case 'r': { /* retorno funcionando*/
@@ -1208,7 +1240,7 @@ funcp gera (FILE *f, unsigned char codigo[])
             error("comando invalido", line);
           printf("%d %c%d = %c%d %c %c%d\n", line, var0, idx0, var1, idx1, op, var2, idx2);
           
-          printf("\nPrintando valores:\tvar0: %c, var1: %c, var2: %c, op: %c, idx0: %d, idx1: %d, idx2: %d\nTerminei de printar. Agora vou fazer um pão. Hehehe ;)\n", var0, var1, var2, op, idx0, idx1, idx2);
+          //printf("\nPrintando valores:\tvar0: %c, var1: %c, var2: %c, op: %c, idx0: %d, idx1: %d, idx2: %d\nTerminei de printar. Agora vou fazer um pão. Hehehe ;)\n", var0, var1, var2, op, idx0, idx1, idx2);
           /* 4 posibilidades: var1 = v e var2 = v, var1 = $ e var2 = v, var1 = v e var2 = $, var1 = $ e var2 = $. tal que $ = constante e v = variavel. */
 
           if (var1 == 'v' && var2 == 'v') { // se for variavel e variavel
@@ -1305,7 +1337,7 @@ funcp gera (FILE *f, unsigned char codigo[])
         
         printf("%d iflez %c%d %d\n", line, var0, idx0, n);
 
-        printf("\nPrintando valores:\tvar0: %c, idx0: %d, n: %d, line: %d\nTerminei de printar. Agora vou fazer um pão. Hehehe ;)\n", var0, idx0, n, line);
+        //printf("\nPrintando valores:\tvar0: %c, idx0: %d, n: %d, line: %d\nTerminei de printar. Agora vou fazer um pão. Hehehe ;)\n", var0, idx0, n, line);
 
         // Copia o valor da variavel (ou constante) para o registrador %r10d
         switch(var0) {
@@ -1339,12 +1371,15 @@ funcp gera (FILE *f, unsigned char codigo[])
       default: error("comando desconhecido", line);
     }
 
-    line ++;
+    line++;
 
     linhaByte[line] = end + 1; // Coloca a posição do byte de ínicio da próxima linha do array codigo no array linhaByte
 
     fscanf(f, " ");
   }
+  
+  qntLinhas = line; // Guarda a quantidade de linhas do arquivo (informação em que estava em line e que vai se perder em seguida)
+  
   //fim do arquivo
 
   line = 0;
@@ -1371,6 +1406,8 @@ funcp gera (FILE *f, unsigned char codigo[])
   //ret
   codigo[end] = 0xc3;
   end++;
+
+  imprimirCodigoMaquina(codigo, linhaByte, qntLinhas);
   // retornar para funcaoSimples do tipo funcp
   return (funcp)codigo;
 }
