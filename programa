@@ -1,6 +1,5 @@
-v1 < $1
-v2 < $0
-v3 < $-1
-iflez v3 5
-ret v2
-ret v1
+v1 < p1
+v1 = v1 + $1
+iflez v1 5
+ret $0
+ret $1

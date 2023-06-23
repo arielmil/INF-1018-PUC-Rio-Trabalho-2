@@ -414,13 +414,13 @@ void adicionarInstrucao(unsigned char* codigo, char* nomeInstrucao, int* posicao
 }
 
 // Para imprimir o codigo em hexadecimal indicando cada linha
-void imprimirCodigoMaquina(unsigned char codigo[], int linhaByte[], int numLinhas) {
+void imprimirCodigoMaquina(unsigned char codigo[], int indiceByte[], int numLinhas) {
     int i, j;
 
     printf("\n");
 
     for(i = 0; i < numLinhas; i++) {
-        int inicioLinha = linhaByte[i];
+        int inicioLinha = indiceByte[i];
         int fimLinha;
 
         if(i == numLinhas - 1) { // Última linha
@@ -430,7 +430,7 @@ void imprimirCodigoMaquina(unsigned char codigo[], int linhaByte[], int numLinha
                 fimLinha++;
             }
         } else {
-            fimLinha = linhaByte[i + 1] - 2;
+            fimLinha = indiceByte[i + 1] - 2;
         }
 
         if (i > 0) {
@@ -466,11 +466,11 @@ funcp gera (FILE *f, unsigned char codigo[])
   int i = 0;
 
   char indiceOffset; // Usado no ultimo for antes do final do return. Serve para saber qual o indice dos offsets no array codigo que tem o JLE
-  char indiceByteInicioLinha; // byte que indica o começo de uma linha no array codigo
+  char indiceByteLinha; // byte que indica o começo de uma linha no array codigo
 
   char offsetMem; // Offset de memória para as váriaveis e pulos do JLE
 
-  int linhaByte[MAX_LINHAS]; // array que relaciona (i = numero da linha - 1) no arquivo em simples com o indice do primeiro byte da linha no array codigo para cada i.
+  int indiceByte[MAX_LINHAS]; // array que relaciona (i = numero da linha - 1) no arquivo em simples com o indice do primeiro byte da linha no array codigo para cada i.
   indiceLinha labelPulaLinha[MAX_LINHAS]; // array que guarda a posição no array código de cada label (offset para o JLE), assim como a linha em que é para ele pular para (Com espaço o suficiente para todos os labels)
   
   int sizeLabelPulaLinha = 0; // quantidade de iflez's que tem no código
@@ -503,7 +503,7 @@ funcp gera (FILE *f, unsigned char codigo[])
 
   // le o arquivo:
 
-  linhaByte[0] = 8; // mapeia a linha 0 para o byte 8 (inicio do codigo / byte de inicio da primeira linha)
+  indiceByte[0] = 8; // mapeia a linha 0 para o byte 8 (inicio do codigo / byte de inicio da primeira linha)
 
   while ((c = fgetc(f)) != EOF) {
 
@@ -1373,7 +1373,7 @@ funcp gera (FILE *f, unsigned char codigo[])
 
     line++;
 
-    linhaByte[line] = end + 1; // Coloca a posição do byte de ínicio da próxima linha do array codigo no array linhaByte
+    indiceByte[line] = end + 1; // Coloca a posição do byte de ínicio da próxima linha do array codigo no array indiceByte
 
     fscanf(f, " ");
   }
@@ -1390,9 +1390,9 @@ funcp gera (FILE *f, unsigned char codigo[])
     line = labelPulaLinha[i].linha; //O valor n lido de cada linha com iflez
     indiceOffset = labelPulaLinha[i].indiceOffset; //O indice do byte de offset da linha com iflez
 
-    indiceByteInicioLinha = linhaByte[line]; //O indice do byte de inicio da linha que o iflez vai desviar para
+    indiceByteLinha = indiceByte[line]; //O indice do byte de inicio da linha que o iflez vai desviar para
 
-    offsetMem = indiceOffset - indiceByteInicioLinha; //Calcula o indice do offset fazendo indiceoffset - indiceByteInicioLinha
+    offsetMem = - (indiceOffset - indiceByteLinha) + 1; //Calcula o indice do offset fazendo indiceoffset - indiceByteLinha
 
     codigo[indiceOffset] = offsetMem; // Coloca o offset no array codigo
 
@@ -1407,7 +1407,7 @@ funcp gera (FILE *f, unsigned char codigo[])
   codigo[end] = 0xc3;
   end++;
 
-  imprimirCodigoMaquina(codigo, linhaByte, qntLinhas);
+  imprimirCodigoMaquina(codigo, indiceByte, qntLinhas);
   // retornar para funcaoSimples do tipo funcp
   return (funcp)codigo;
 }
