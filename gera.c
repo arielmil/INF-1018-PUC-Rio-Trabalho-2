@@ -518,7 +518,7 @@ funcp gera (FILE *f, unsigned char codigo[])
         if (var0 == '$')//retorna constante
         {
           // escreve no codigo
-          codigo[end] = 0x8b;
+          codigo[end] = 0xb8;
           end++;
           // escreve o valor da constante em ate 4 bytes com for
           for (i = 0; i < 4; i++)
