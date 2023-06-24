@@ -221,10 +221,6 @@ funcp gera (FILE *f, unsigned char codigo[])
             break;
           
           case('$'):
-
-            adicionarInstrucao(codigo, "MOVL", &end);
-            escreveLittleEndian(idx0, codigo, &end);
-
             break;
           
           default:
