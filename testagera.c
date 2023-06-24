@@ -14,7 +14,7 @@ int main() {
   unsigned char codigo[MAX];
   funcp funcaoSimples;
   int res;
-  
+
   printf("\nTeste 1: soma simples, parametros de entrada: (5, 10, 0), Resultado esperado: 15.\n");
   if ((myfp = fopen("arquivosTestes/programaTeste1.txt", "r")) == NULL) {
     perror("Falha na abertura do arquivo fonte");
