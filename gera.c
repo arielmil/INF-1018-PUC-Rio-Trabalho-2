@@ -12,13 +12,16 @@
 
 /* Definições de opcodes */
 
-#define PUSHQ "55" // Push %rbp
-#define MOVQ "48 89 e5" // Move %rsp para %rbp
+#define PUSHQRBP "55" // Push %rbp
+#define MOVQRSPRBP "48 89 e5" // Move %rsp para %rbp
+#define SUBQX20RSP "48 83 ec 20" // Subtrai 20 de %rsp
 #define MOVLV10 "41 ba" // Move $var para %r10d
 #define MOVLV11 "41 bb" // Move $var para %r11d
 #define MOVLM10 "44 8b 55" // Move alguém da memória para %r10d (precisa colocar os 8 bits de offset de %rbp quando usar)
 #define MOVLM11 "44 8b 5d" // Move alguém da memória para %r11d (precisa colocar os 8 bits de offset de %rbp quando usar)
 #define MOVL11M "44 89 5d" // Move %r11d para a memória (precisa colocar os 8 bits de offset de %rbp quando usar)
+#define MOVLMEAX "8b 45" // Move um valor na memoria para o eax (precisa colocar os 8 bits de offset de %rbp quando usar)
+#define MOVL "8b"
 #define ADDL "45 01 d3" // Soma %r10d com %r11d e coloca o resultado em %r11d
 #define SUBL "45 29 d3" // Subtrai %r10d com %r11d e coloca o resultado em %r11d
 #define IMULL "45 0f af da" // Multiplica %r10d com %r11d e coloca o resultado em %r11d
@@ -36,13 +39,16 @@ typedef struct {
 } Instrucao;
 
 Instrucao instrucoes[] = {
-    {"PUSHQ", PUSHQ},
-    {"MOVQ", MOVQ},
+    {"PUSHQRBP", PUSHQRBP},
+    {"MOVQRSPRBP", MOVQRSPRBP},
+    {"SUBQX20RSP", SUBQX20RSP},
     {"MOVLV10", MOVLV10},
     {"MOVLV11", MOVLV11},
     {"MOVLM10", MOVLM10},
     {"MOVLM11", MOVLM11},
     {"MOVL11M", MOVL11M},
+    {"MOVLMEAX", MOVLMEAX},
+    {"MOVL", MOVL},
     {"ADDL", ADDL},
     {"SUBL", SUBL},
     {"IMULL", IMULL},
@@ -176,31 +182,16 @@ funcp gera (FILE *f, unsigned char codigo[])
   
   int sizeLabelPulaLinha = 0; // quantidade de iflez's que tem no código
 
-  // coloca todo o codigo assembly no vetor codigo
-
   //inicio:
 
-  // aloca 32 bytes para as variaveis
-  codigo[end] = 0x55; //push   %rbp
-  end++;
+  //pushq, %rbp
+  adicionarInstrucao(codigo, "PUSHQRBP", &end);
 
-  //mov    %rsp,%rbp
-  codigo[end] = 0x48; 
-  end++;
-  codigo[end] = 0x89;
-  end++;
-  codigo[end] = 0xe5;
-  end++;
+  //movq, %rsp, %rbp
+  adicionarInstrucao(codigo, "MOVQRSPRBP", &end);
 
-  //sub    $0x20,%rsp
-  codigo[end] = 0x48;
-  end++;
-  codigo[end] = 0x83;
-  end++;
-  codigo[end] = 0xec;
-  end++;
-  codigo[end] = 0x20;
-  end++;
+  //subq, $32, %rsp //Aloca espaço para as 5 variáveis
+  adicionarInstrucao(codigo, "SUBQX20RSP", &end);
 
   // le o arquivo:
 
@@ -218,84 +209,36 @@ funcp gera (FILE *f, unsigned char codigo[])
           error("comando invalido", line);
 
         printf("%d ret %c%d\n", line, var0, idx0);
-        if (var0 == '$')//retorna constante
-        {
-          // escreve no codigo
-          codigo[end] = 0xb8;
-          end++;
-          // escreve o valor da constante em ate 4 bytes com for
-          for (i = 0; i < 4; i++)
-          {
-            codigo[end] = idx0 >> (i*8);
+
+        switch (var0) {
+          case('v'):
+            adicionarInstrucao(codigo, "MOVLMEAX", &end);
+
+            offsetMem = -4 * idx0;
+            codigo[end] = offsetMem;
             end++;
-          }
+
+            break;
+          
+          case('$'):
+
+            adicionarInstrucao(codigo, "MOVL", &end);
+            escreveLittleEndian(idx0, codigo, &end);
+
+            break;
+          
+          default:
+            error("comando invalido", line);
         }
 
-        if (var0 == 'v')//retorna variavel
-        {
-          if (idx0 == 1)//retorna v1
-          {
-            // escreve no codigo
-            codigo[end] = 0x8b;
-            end++;
-            codigo[end] = 0x45;
-            end++;
-            codigo[end] = 0xfc;
-            end++;
-        }
-
-          if (idx0 == 2)//retorna v2
-          {
-              // escreve no codigo
-              codigo[end] = 0x8b;
-              end++;
-              codigo[end] = 0x45;
-              end++;
-              codigo[end] = 0xf8;
-              end++;
-          }
-
-          if (idx0 == 3)//retorna v3
-          {
-              // escreve no codigo
-              codigo[end] = 0x8b;
-              end++;
-              codigo[end] = 0x45;
-              end++;
-              codigo[end] = 0xf4;
-              end++;
-          }
-
-          if (idx0 == 4)//retorna v4
-          {
-              // escreve no codigo
-              codigo[end] = 0x8b;
-              end++;
-              codigo[end] = 0x45;
-              end++;
-              codigo[end] = 0xf0;
-              end++;
-          }
-
-          if (idx0 == 5)//retorna v5
-          {
-              // escreve no codigo
-              codigo[end] = 0x8b;
-              end++;
-              codigo[end] = 0x45;
-              end++;
-              codigo[end] = 0xec;
-              end++;
-          }
-        }
         // coloca o fim do assmebly no vetor codigo:
+        
         //leave
-        codigo[end] = 0xc9;
-        end++;
+        adicionarInstrucao(codigo, "LEAVE", &end);
 
         //ret
-        codigo[end] = 0xc3;
-        end++;
+        adicionarInstrucao(codigo, "RET", &end);
+
         break;
       }
       
@@ -948,7 +891,6 @@ funcp gera (FILE *f, unsigned char codigo[])
             error("comando invalido", line);
           printf("%d %c%d = %c%d %c %c%d\n", line, var0, idx0, var1, idx1, op, var2, idx2);
           
-          //printf("\nPrintando valores:\tvar0: %c, var1: %c, var2: %c, op: %c, idx0: %d, idx1: %d, idx2: %d\nTerminei de printar. Agora vou fazer um pão. Hehehe ;)\n", var0, var1, var2, op, idx0, idx1, idx2);
           /* 4 posibilidades: var1 = v e var2 = v, var1 = $ e var2 = v, var1 = v e var2 = $, var1 = $ e var2 = $. tal que $ = constante e v = variavel. */
 
           if (var1 == 'v' && var2 == 'v') { // se for variavel e variavel
