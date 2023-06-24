@@ -21,7 +21,7 @@
 #define MOVLM11 "44 8b 5d" // Move alguém da memória para %r11d (precisa colocar os 8 bits de offset de %rbp quando usar)
 #define MOVL11M "44 89 5d" // Move %r11d para a memória (precisa colocar os 8 bits de offset de %rbp quando usar)
 #define MOVLMEAX "8b 45" // Move um valor na memoria para o eax (precisa colocar os 8 bits de offset de %rbp quando usar)
-#define MOVL "8b"
+#define MOVLVEAX "8b"
 #define ADDL "45 01 d3" // Soma %r10d com %r11d e coloca o resultado em %r11d
 #define SUBL "45 29 d3" // Subtrai %r10d com %r11d e coloca o resultado em %r11d
 #define IMULL "45 0f af da" // Multiplica %r10d com %r11d e coloca o resultado em %r11d
@@ -48,7 +48,7 @@ Instrucao instrucoes[] = {
     {"MOVLM11", MOVLM11},
     {"MOVL11M", MOVL11M},
     {"MOVLMEAX", MOVLMEAX},
-    {"MOVL", MOVL},
+    {"MOVLVEAX", MOVLVEAX},
     {"ADDL", ADDL},
     {"SUBL", SUBL},
     {"IMULL", IMULL},
@@ -205,12 +205,14 @@ funcp gera (FILE *f, unsigned char codigo[])
       case 'r': { /* retorno funcionando*/
         char var0;
         int idx0;
+
         if (fscanf(f, "et %c%d", &var0, &idx0) != 2)
           error("comando invalido", line);
 
         printf("%d ret %c%d\n", line, var0, idx0);
 
         switch (var0) {
+
           case('v'):
             adicionarInstrucao(codigo, "MOVLMEAX", &end);
 
@@ -221,10 +223,15 @@ funcp gera (FILE *f, unsigned char codigo[])
             break;
           
           case('$'):
+
+            adicionarInstrucao(codigo, "MOVLVEAX", &end);
+            escreveLittleEndian(idx0, codigo, &end);
+
             break;
           
           default:
             error("comando invalido", line);
+
         }
 
         // coloca o fim do assmebly no vetor codigo:
