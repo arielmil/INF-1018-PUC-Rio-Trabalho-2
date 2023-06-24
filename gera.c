@@ -417,7 +417,7 @@ void adicionarInstrucao(unsigned char* codigo, char* nomeInstrucao, int* posicao
 void imprimirCodigoMaquina(unsigned char codigo[], int indiceByte[], int numLinhas) {
     int i, j;
 
-    printf("\n");
+    printf("\nImprimindo codigo de maquina:\n\n");
 
     for(i = 0; i < numLinhas; i++) {
         int inicioLinha = indiceByte[i];
@@ -504,6 +504,8 @@ funcp gera (FILE *f, unsigned char codigo[])
   // le o arquivo:
 
   indiceByte[0] = 8; // mapeia a linha 0 para o byte 8 (inicio do codigo / byte de inicio da primeira linha)
+
+  printf("\n\nPrintando codigo em simples:\n\n");
 
   while ((c = fgetc(f)) != EOF) {
 

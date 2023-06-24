@@ -1,0 +1,5 @@
+v1 < p1
+iflez v1 4
+ret $0
+ret $1
+

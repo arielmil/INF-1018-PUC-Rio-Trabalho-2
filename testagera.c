@@ -9,40 +9,70 @@
 #define MAX 1000
 
 int main() {
+  
   FILE *myfp;
   unsigned char codigo[MAX];
   funcp funcaoSimples;
   int res;
-  int p1 = 1;
-  int p2 = 2;
+
+  int p1 = -2147483647;
+  int p2 = 100;
   int p3 = 3;
 
-  /* Abre o arquivo fonte */
-  if ((myfp = fopen("programa", "r")) == NULL) {
+  printf("\nTeste 1: soma simples, parametros de entrada: (5, 10, 0), Resultado esperado: 15.\n");
+  if ((myfp = fopen("arquivosTestes/programaTeste1.txt", "r")) == NULL) {
     perror("Falha na abertura do arquivo fonte");
     exit(1);
   }
-  /* compila a função Simples */
   funcaoSimples = gera(myfp, codigo);
   fclose(myfp);
+  res = (*funcaoSimples) (5,10,0);  
+  printf("\nRetorno: %d\n", res);
+  printf("Resultado: %s\n", res == 15 ? "sucesso" : "falha");
 
-  /* chama a função */
-  res = (*funcaoSimples) (p1,p2,p3);  /* passando argumentos apropriados */
-  printf("\nRetorno: %d\n\n", res);
+  printf("\nTeste 2: operação de identidade, parametros de entrada: (7, 0, 0), Resultado esperado: 7.\n");
+  if ((myfp = fopen("arquivosTestes/programaTeste2.txt", "r")) == NULL) {
+    perror("Falha na abertura do arquivo fonte");
+    exit(1);
+  }
+  funcaoSimples = gera(myfp, codigo);
+  fclose(myfp);
+  res = (*funcaoSimples) (7,0,0);  
+  printf("\nRetorno: %d\n", res);
+  printf("Resultado: %s\n", res == 7 ? "sucesso" : "falha");
 
-  // printf("Teste 1 (ret $1): %s\n", res == 1 ? "sucesso" : "falha");
+  printf("\nTeste 3: multiplicação simples, parametros de entrada: (8, 2, 0), Resultado esperado: 16.\n");
+  if ((myfp = fopen("arquivosTestes/programaTeste3.txt", "r")) == NULL) {
+    perror("Falha na abertura do arquivo fonte");
+    exit(1);
+  }
+  funcaoSimples = gera(myfp, codigo);
+  fclose(myfp);
+  res = (*funcaoSimples) (8,2,0);  
+  printf("\nRetorno: %d\n", res);
+  printf("Resultado: %s\n", res == 16 ? "sucesso" : "falha");
 
-  //testar para ret $-1 tbm
+  printf("\nTeste 4: operação de valor absoluto, parametros de entrada: (-5, 0, 0), Resultado esperado: 5.\n");
+  if ((myfp = fopen("arquivosTestes/programaTeste4.txt", "r")) == NULL) {
+    perror("Falha na abertura do arquivo fonte");
+    exit(1);
+  }
+  funcaoSimples = gera(myfp, codigo);
+  fclose(myfp);
+  res = (*funcaoSimples) (-5,0,0);  
+  printf("\nRetorno: %d\n", res);
+  printf("Resultado: %s\n", res == 5 ? "sucesso" : "falha");
 
-  // printf("v1 < $1 \n ret v1 \nTeste 2: %s\n", res == 1 ? "sucesso" : "falha");
-
-  // printf("Teste 3:\nv5 < $5 \nv1 < v5 \nret v1 \nResultado: %s\n", res == 5 ? "sucesso" : "falha");
-
-  // printf("Teste 4:\nv5 < $5 \nv2 < v5 \nret v1 \nResultado: %s\n", res == 5 ? "sucesso" : "falha");
-
-  // printf("Teste 5: \tSoma de v1 = 3 e v2 = $53. \nResultado: %s\n", res == 56 ? "sucesso" : "falha");
-
-  printf("Teste 6:\nResultado: %s\n", res == 0 ? "sucesso" : "falha");
+  printf("\nTeste 5: cálculo de fatorial, parametros de entrada: (5, 0, 0), Resultado esperado: 120.\n");
+  if ((myfp = fopen("arquivosTestes/programaTeste5.txt", "r")) == NULL) {
+    perror("Falha na abertura do arquivo fonte");
+    exit(1);
+  }
+  funcaoSimples = gera(myfp, codigo);
+  fclose(myfp);
+  res = (*funcaoSimples) (5,0,0);  
+  printf("\nRetorno: %d\n", res);
+  printf("Resultado: %s\n", res == 120 ? "sucesso" : "falha");
 
   return 0;
 }
